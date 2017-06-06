@@ -1,6 +1,7 @@
 package be.ordina.service;
 
 import be.ordina.controller.BlockchainController;
+import be.ordina.model.AccountDTO;
 import be.ordina.model.Vending;
 import org.springframework.stereotype.Service;
 import org.web3j.abi.FunctionEncoder;
@@ -118,18 +119,17 @@ public class Web3jService {
     }
 
 
-    public String[][] getAccountsArray() throws IOException {
+    public List<AccountDTO> getAccountsArray() throws IOException {
         EthAccounts accounts =  web3.ethAccounts().send();
-        int size = accounts.getAccounts().size();
-        String[][] arrAccBalance = new String[size][3];
-        int i = 0;
+        List<AccountDTO> accountDTOs = new ArrayList<>();
         for (String s : accounts.getAccounts()) {
             BigInteger balance = web3.ethGetBalance(s,DefaultBlockParameterName.LATEST).send().getBalance();
-            arrAccBalance[i][1] = new String(s);
-            arrAccBalance[i][2] = new String(String.valueOf(Convert.fromWei(balance.toString(), Convert.Unit.ETHER).toString()));
-            i++;
+            AccountDTO acc = new AccountDTO(s,Convert.fromWei(balance.toString(), Convert.Unit.ETHER));
+            accountDTOs.add(acc);
         }
-        return arrAccBalance;
+
+        return accountDTOs;
+
     }
 
     public Integer getStock() throws IOException, ExecutionException, InterruptedException, CipherException {
