@@ -1,5 +1,6 @@
 package be.ordina.controller;
 
+import be.ordina.model.AccountDTO;
 import be.ordina.service.Web3jService;
 import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,13 +54,12 @@ public class BlockchainController {
 
     }
     @RequestMapping(value="/getAccountsWithUsername",method = RequestMethod.GET)
-    public String[][] getAccountsWithUsername() {
-        //List<String> res = new ArrayList<>();
-        String[][] walletAndBalance;
+    public List<AccountDTO> getAccountsWithUsername() {
+        List<AccountDTO> res = new ArrayList<>();
         try {
             if(userController.currentUserIsAdmin()){
-                walletAndBalance = web3jService.getAccountsArray();
-                return userController.fillUsernamesWalletbalanceArray(walletAndBalance);
+                res = web3jService.getAccountsArray();
+                return userController.fillUsernamesWalletbalanceArray(res);
 
             }else {
                 return null;

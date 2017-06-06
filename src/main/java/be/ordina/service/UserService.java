@@ -1,12 +1,14 @@
 package be.ordina.service;
 
-import be.ordina.controller.UserController;
+import be.ordina.model.AccountDTO;
 import be.ordina.repository.IMongoModelEnabledRepository;
-import be.ordina.security.AccountCredentials;
+import be.ordina.model.AccountCredentials;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * Created by KeLe on 8/05/2017.
@@ -58,14 +60,14 @@ public class UserService {
 
     public String getUsernameFromWalletID(String walletID) {
         AccountCredentials acc =  mongoRespository.findAccountCredentialsByWalletID(walletID);
-        if(acc != null){return acc.getUsername();}else {return "Account not found";}
+        if(acc != null){return acc.getUsername();}else {return "Username not found";}
     }
 
-    public String[][] fillUsernamesWalletbalanceArray(String[][] walletAndBalance) {
-        //todo: fill usernames in array
-        for (int i = 0; i<walletAndBalance.length;i++){
-            String username = getUsernameFromWalletID(walletAndBalance[i][1]);
-            walletAndBalance[i][0] = username;
+    public List<AccountDTO> fillUsernamesWalletbalanceArray(List<AccountDTO> walletAndBalance) {
+
+        for (AccountDTO a : walletAndBalance) {
+            String username= getUsernameFromWalletID(a.getWalletID());
+            a.setUsername(username);
         }
 
         return walletAndBalance;

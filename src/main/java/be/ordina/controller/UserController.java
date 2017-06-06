@@ -1,12 +1,12 @@
 package be.ordina.controller;
 
-import be.ordina.security.AccountCredentials;
+import be.ordina.model.AccountDTO;
+import be.ordina.model.AccountCredentials;
 import be.ordina.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
+import java.util.List;
 
 /**
  * Created by KeLe on 5/05/2017.
@@ -24,7 +24,7 @@ public class UserController {
     @RequestMapping(value="/register",method = RequestMethod.POST)
     public boolean register(@RequestBody final UserRegistration userRegistration) {
         System.out.println("in the register ");
-        AccountCredentials newUser = new AccountCredentials(userRegistration.getUsername(),userRegistration.getPassword(),userRegistration.getWalletID());
+        AccountCredentials newUser = new AccountCredentials(userRegistration.getUsername(),userRegistration.getPassword());
 
         String wallID =  blockchainController.makeNewWallet(newUser.getPassword());
         newUser.setWalletID(wallID);
@@ -75,7 +75,7 @@ public class UserController {
         return userService.removeAdmin(adminID);
     }
 
-    public String[][] fillUsernamesWalletbalanceArray(String[][] walletAndBalance) {
+    public List<AccountDTO> fillUsernamesWalletbalanceArray(List<AccountDTO> walletAndBalance) {
         return userService.fillUsernamesWalletbalanceArray(walletAndBalance);
     }
 
@@ -83,18 +83,15 @@ public class UserController {
     public static class UserRegistration {
         String username;
         String password;
-        String walletID;
 
         public UserRegistration(String username, String password) {
             this.username = username;
             this.password = password;
-            this.walletID = "";
         }
 
         public UserRegistration(String username, String password, String walletID) {
             this.username = username;
             this.password = password;
-            this.walletID = walletID;
         }
 
         public UserRegistration() {
@@ -114,10 +111,6 @@ public class UserController {
 
         public void setPassword(String password) {
             this.password = password;
-        }
-
-        public String getWalletID() {
-            return walletID;
         }
     }
 

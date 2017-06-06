@@ -1,7 +1,6 @@
 package be.ordina.repository;
 
-import be.ordina.security.AccountCredentials;
-import org.springframework.context.annotation.Bean;
+import be.ordina.model.AccountCredentials;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
