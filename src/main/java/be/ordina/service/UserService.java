@@ -1,9 +1,8 @@
 package be.ordina.service;
 
-import be.ordina.controller.UserController;
 import be.ordina.model.AccountDTO;
 import be.ordina.repository.IMongoModelEnabledRepository;
-import be.ordina.security.AccountCredentials;
+import be.ordina.model.AccountCredentials;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

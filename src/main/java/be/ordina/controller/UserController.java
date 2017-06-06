@@ -1,14 +1,12 @@
 package be.ordina.controller;
 
 import be.ordina.model.AccountDTO;
-import be.ordina.security.AccountCredentials;
+import be.ordina.model.AccountCredentials;
 import be.ordina.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Created by KeLe on 5/05/2017.

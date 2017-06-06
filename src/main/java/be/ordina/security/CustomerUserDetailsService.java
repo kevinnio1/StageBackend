@@ -1,5 +1,6 @@
 package be.ordina.security;
 
+import be.ordina.model.AccountCredentials;
 import be.ordina.repository.IMongoModelEnabledRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.AuthorityUtils;
