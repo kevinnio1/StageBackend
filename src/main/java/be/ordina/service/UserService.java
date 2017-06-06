@@ -55,4 +55,19 @@ public class UserService {
             return true;
         }else {return false;}
     }
+
+    public String getUsernameFromWalletID(String walletID) {
+        AccountCredentials acc =  mongoRespository.findAccountCredentialsByWalletID(walletID);
+        if(acc != null){return acc.getUsername();}else {return "Account not found";}
+    }
+
+    public String[][] fillUsernamesWalletbalanceArray(String[][] walletAndBalance) {
+        //todo: fill usernames in array
+        for (int i = 0; i<walletAndBalance.length;i++){
+            String username = getUsernameFromWalletID(walletAndBalance[i][1]);
+            walletAndBalance[i][0] = username;
+        }
+
+        return walletAndBalance;
+    }
 }

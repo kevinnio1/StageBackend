@@ -1,6 +1,7 @@
 package be.ordina.controller;
 
 import be.ordina.service.Web3jService;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.web3j.crypto.CipherException;
@@ -45,6 +46,24 @@ public class BlockchainController {
             if(userController.currentUserIsAdmin()){
             res = web3jService.getAccounts();}else {return new ArrayList<>();}
             return res;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+
+    }
+    @RequestMapping(value="/getAccountsWithUsername",method = RequestMethod.GET)
+    public String[][] getAccountsWithUsername() {
+        //List<String> res = new ArrayList<>();
+        String[][] walletAndBalance;
+        try {
+            if(userController.currentUserIsAdmin()){
+                walletAndBalance = web3jService.getAccountsArray();
+                return userController.fillUsernamesWalletbalanceArray(walletAndBalance);
+
+            }else {
+                return null;
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return null;

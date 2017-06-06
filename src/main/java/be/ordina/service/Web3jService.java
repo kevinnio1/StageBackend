@@ -58,6 +58,7 @@ public class Web3jService {
     Subscription subscription2;
     BigInteger duration = BigInteger.valueOf(3600);//one hour
     private List<String> connectedPeers = new ArrayList<>();
+    private List<String> accountsArray;
 
     public Web3jService() throws IOException, CipherException, URISyntaxException {
         this.web3  = Web3j.build(new HttpService());
@@ -114,6 +115,21 @@ public class Web3jService {
             list.add(accAndBalance);
         }
         return list;
+    }
+
+
+    public String[][] getAccountsArray() throws IOException {
+        EthAccounts accounts =  web3.ethAccounts().send();
+        int size = accounts.getAccounts().size();
+        String[][] arrAccBalance = new String[size][3];
+        int i = 0;
+        for (String s : accounts.getAccounts()) {
+            BigInteger balance = web3.ethGetBalance(s,DefaultBlockParameterName.LATEST).send().getBalance();
+            arrAccBalance[i][1] = new String(s);
+            arrAccBalance[i][2] = new String(String.valueOf(Convert.fromWei(balance.toString(), Convert.Unit.ETHER).toString()));
+            i++;
+        }
+        return arrAccBalance;
     }
 
     public Integer getStock() throws IOException, ExecutionException, InterruptedException, CipherException {

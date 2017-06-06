@@ -75,6 +75,10 @@ public class UserController {
         return userService.removeAdmin(adminID);
     }
 
+    public String[][] fillUsernamesWalletbalanceArray(String[][] walletAndBalance) {
+        return userService.fillUsernamesWalletbalanceArray(walletAndBalance);
+    }
+
 
     public static class UserRegistration {
         String username;
