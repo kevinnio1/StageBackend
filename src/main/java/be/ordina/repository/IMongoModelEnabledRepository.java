@@ -13,4 +13,5 @@ public interface IMongoModelEnabledRepository extends MongoRepository<AccountCre
 
     AccountCredentials findByUsername(String s);
     AccountCredentials findAccountCredentialsByWalletID(String walletID);
+
 }

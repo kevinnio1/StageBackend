@@ -153,7 +153,7 @@ public class Web3jService {
         }else if(func.equalsIgnoreCase("stockup")) {
             if((getStock()+amountStockup)>getMaxStock()){return doReturn(func);}
             //no stock check needed because the blockchain smart contract has a max value + not enogh coins to buy more
-            function = new Function("stockUp", Arrays.asList(new Int256(am)), Collections.emptyList());
+            function = new Function("resupply", Arrays.asList(new Int256(am)), Collections.emptyList());
             ether = Convert.toWei("0.0", Convert.Unit.ETHER).toBigInteger();
         }else if (func.equalsIgnoreCase("setmin")){
             if(amountStockup >= getStock()){return doReturn(func);}
@@ -168,10 +168,11 @@ public class Web3jService {
         PersonalUnlockAccount currentacc = parity.personalUnlockAccount(currentwalletID,passwordWallet, duration).send();
         if(currentacc==null){
             throw new Exception("CurrentAccount is null!");
-
         }
-        if (currentacc.accountUnlocked()) {
 
+        if (currentacc.accountUnlocked()) {
+            //todo: check if balance 0, otherwise error
+            if (web3.ethGetBalance(currentwalletID,DefaultBlockParameterName.LATEST).send().getBalance().doubleValue()<=0){return doReturn(func);}
             EthGetTransactionCount ethGetTransactionCount = web3.ethGetTransactionCount(currentwalletID, DefaultBlockParameterName.LATEST).sendAsync().get();
             BigInteger nonce = ethGetTransactionCount.getTransactionCount();
             String encodedFunction = FunctionEncoder.encode(function);
@@ -179,7 +180,7 @@ public class Web3jService {
             org.web3j.protocol.core.methods.response.EthSendTransaction transactionResponse =parity.personalSignAndSendTransaction(transaction,passwordWallet).send();
             final String transactionHash = transactionResponse.getTransactionHash();
             if (transactionHash == null) {
-                throw new Exception("transactionResponse.getError().getMessage()");
+                throw new Exception(transactionResponse.getError().getMessage());
             }
             EthGetTransactionReceipt transactionReceipt = null;
             //todo: indien niet toegevoegd door error moet deze niet wachten op de transactionreceipt. Dus een timeout hierop plaatsen?
@@ -240,7 +241,7 @@ public class Web3jService {
     public boolean addNewUser(String walletID) throws ExecutionException, InterruptedException {
         Address newAddress = new Address(walletID);
         //will wait till block is mined
-        TransactionReceipt transactionReceipt= vendingContract.add(newAddress).get();
+        TransactionReceipt transactionReceipt= vendingContract.addUser(newAddress).get();
         return true;
     }
 
