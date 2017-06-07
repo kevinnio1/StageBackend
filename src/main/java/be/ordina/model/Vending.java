@@ -36,109 +36,109 @@ public final class Vending extends Contract {
     }
 
     public Future<TransactionReceipt> add(Address user) {
-        Function function = new Function("add", Arrays.<Type>asList(user), Collections.<TypeReference<?>>emptyList());
+        Function function = new Function("add", Arrays.asList(user), Collections.emptyList());
         return executeTransactionAsync(function);
     }
 
     public Future<TransactionReceipt> setSupplier(Address a) {
-        Function function = new Function("setSupplier", Arrays.<Type>asList(a), Collections.<TypeReference<?>>emptyList());
+        Function function = new Function("setSupplier", Arrays.asList(a), Collections.emptyList());
         return executeTransactionAsync(function);
     }
 
     public Future<TransactionReceipt> removeAdmin(Address admin) {
-        Function function = new Function("removeAdmin", Arrays.<Type>asList(admin), Collections.<TypeReference<?>>emptyList());
+        Function function = new Function("removeAdmin", Arrays.asList(admin), Collections.emptyList());
         return executeTransactionAsync(function);
     }
 
     public Future<TransactionReceipt> pay() {
-        Function function = new Function("pay", Arrays.<Type>asList(), Collections.<TypeReference<?>>emptyList());
+        Function function = new Function("pay", Arrays.asList(), Collections.emptyList());
         return executeTransactionAsync(function);
     }
 
     public Future<TransactionReceipt> setMinStock(Int256 newStock) {
-        Function function = new Function("setMinStock", Arrays.<Type>asList(newStock), Collections.<TypeReference<?>>emptyList());
+        Function function = new Function("setMinStock", Arrays.asList(newStock), Collections.emptyList());
         return executeTransactionAsync(function);
     }
 
     public Future<TransactionReceipt> remove(Address user) {
-        Function function = new Function("remove", Arrays.<Type>asList(user), Collections.<TypeReference<?>>emptyList());
+        Function function = new Function("remove", Arrays.asList(user), Collections.emptyList());
         return executeTransactionAsync(function);
     }
 
     public Future<TransactionReceipt> deleteAccount() {
-        Function function = new Function("deleteAccount", Arrays.<Type>asList(), Collections.<TypeReference<?>>emptyList());
+        Function function = new Function("deleteAccount", Arrays.asList(), Collections.emptyList());
         return executeTransactionAsync(function);
     }
 
     public Future<TransactionReceipt> setMaxStock(Int256 newStock) {
-        Function function = new Function("setMaxStock", Arrays.<Type>asList(newStock), Collections.<TypeReference<?>>emptyList());
+        Function function = new Function("setMaxStock", Arrays.asList(newStock), Collections.emptyList());
         return executeTransactionAsync(function);
     }
 
     public Future<TransactionReceipt> kill() {
-        Function function = new Function("kill", Arrays.<Type>asList(), Collections.<TypeReference<?>>emptyList());
+        Function function = new Function("kill", Arrays.asList(), Collections.emptyList());
         return executeTransactionAsync(function);
     }
 
     public Future<Int256> maxStock() {
         Function function = new Function("maxStock", 
-                Arrays.<Type>asList(), 
-                Arrays.<TypeReference<?>>asList(new TypeReference<Int256>() {}));
+                Arrays.asList(),
+                Arrays.asList(new TypeReference<Int256>() {}));
         return executeCallSingleValueReturnAsync(function);
     }
 
     public Future<Int256> minStock() {
         Function function = new Function("minStock", 
-                Arrays.<Type>asList(), 
-                Arrays.<TypeReference<?>>asList(new TypeReference<Int256>() {}));
+                Arrays.asList(),
+                Arrays.asList(new TypeReference<Int256>() {}));
         return executeCallSingleValueReturnAsync(function);
     }
 
     public Future<TransactionReceipt> addAdmin(Address admin) {
-        Function function = new Function("addAdmin", Arrays.<Type>asList(admin), Collections.<TypeReference<?>>emptyList());
+        Function function = new Function("addAdmin", Arrays.asList(admin), Collections.emptyList());
         return executeTransactionAsync(function);
     }
 
     public Future<TransactionReceipt> stockUp(Int256 amount) {
-        Function function = new Function("stockUp", Arrays.<Type>asList(amount), Collections.<TypeReference<?>>emptyList());
+        Function function = new Function("stockUp", Arrays.asList(amount), Collections.emptyList());
         return executeTransactionAsync(function);
     }
 
     public Future<TransactionReceipt> setPrice(Uint256 newPrice) {
-        Function function = new Function("setPrice", Arrays.<Type>asList(newPrice), Collections.<TypeReference<?>>emptyList());
+        Function function = new Function("setPrice", Arrays.asList(newPrice), Collections.emptyList());
         return executeTransactionAsync(function);
     }
 
     public Future<Int256> stock() {
         Function function = new Function("stock", 
-                Arrays.<Type>asList(), 
-                Arrays.<TypeReference<?>>asList(new TypeReference<Int256>() {}));
+                Arrays.asList(),
+                Arrays.asList(new TypeReference<Int256>() {}));
         return executeCallSingleValueReturnAsync(function);
     }
 
     public Future<Uint256> finneyPrice() {
         Function function = new Function("finneyPrice", 
-                Arrays.<Type>asList(), 
-                Arrays.<TypeReference<?>>asList(new TypeReference<Uint256>() {}));
+                Arrays.asList(),
+                Arrays.asList(new TypeReference<Uint256>() {}));
         return executeCallSingleValueReturnAsync(function);
     }
 
     public Future<Int256> adminUsers() {
         Function function = new Function("adminUsers", 
-                Arrays.<Type>asList(), 
-                Arrays.<TypeReference<?>>asList(new TypeReference<Int256>() {}));
+                Arrays.asList(),
+                Arrays.asList(new TypeReference<Int256>() {}));
         return executeCallSingleValueReturnAsync(function);
     }
 
     public Future<TransactionReceipt> addStakeholder(Address stakeholder) {
-        Function function = new Function("addStakeholder", Arrays.<Type>asList(stakeholder), Collections.<TypeReference<?>>emptyList());
+        Function function = new Function("addStakeholder", Arrays.asList(stakeholder), Collections.emptyList());
         return executeTransactionAsync(function);
     }
 
     public Future<Int256> users() {
         Function function = new Function("users", 
-                Arrays.<Type>asList(), 
-                Arrays.<TypeReference<?>>asList(new TypeReference<Int256>() {}));
+                Arrays.asList(),
+                Arrays.asList(new TypeReference<Int256>() {}));
         return executeCallSingleValueReturnAsync(function);
     }
 
