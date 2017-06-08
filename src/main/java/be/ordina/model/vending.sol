@@ -19,7 +19,7 @@ contract Supplier {
     /* this function is executed at initialization and sets the owner of the contract */
     function Supplier(uint price,int defaultStock) {
         owner = msg.sender;
-        priceInFinney = price; 
+        priceInFinney = price;
         stock = defaultStock;
     }
 
