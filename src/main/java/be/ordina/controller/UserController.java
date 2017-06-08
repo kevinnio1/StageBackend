@@ -23,7 +23,6 @@ public class UserController {
 
     @RequestMapping(value="/register",method = RequestMethod.POST)
     public boolean register(@RequestBody final UserRegistration userRegistration) {
-        System.out.println("in the register ");
         AccountCredentials newUser = new AccountCredentials(userRegistration.getUsername(),userRegistration.getPassword());
 
         String wallID =  blockchainController.makeNewWallet(newUser.getPassword());

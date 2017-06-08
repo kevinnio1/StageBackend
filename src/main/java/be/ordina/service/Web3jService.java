@@ -1,17 +1,13 @@
 package be.ordina.service;
 
-import be.ordina.controller.BlockchainController;
 import be.ordina.model.AccountDTO;
 import be.ordina.model.Vending;
 import org.springframework.stereotype.Service;
 import org.web3j.abi.FunctionEncoder;
-import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.Address;
 import org.web3j.abi.datatypes.Function;
 import org.web3j.abi.datatypes.Type;
-import org.web3j.abi.datatypes.Uint;
 import org.web3j.abi.datatypes.generated.Int256;
-import org.web3j.abi.datatypes.generated.Uint256;
 import org.web3j.crypto.CipherException;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.WalletUtils;
@@ -26,13 +22,10 @@ import org.web3j.tx.Contract;
 import org.web3j.tx.ManagedTransaction;
 import org.web3j.utils.Convert;
 import rx.Subscription;
-
-import javax.sound.midi.Track;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -144,14 +137,14 @@ public class Web3jService {
     public int doEthFunction(String currentwalletID,String passwordWallet, String func,int amountStockup) throws Exception {
 
         Function function=null;
-        BigInteger ether = Convert.toWei("0.3", Convert.Unit.ETHER).toBigInteger();;
+        BigInteger ether = Convert.toWei("0.3", Convert.Unit.ETHER).toBigInteger();
         BigInteger am = BigInteger.valueOf(amountStockup);
         int stock = getStock();
 
         if(func.equalsIgnoreCase("pay")){
             if(stock==0) doReturn(func);
 
-            function = new Function("pay", Arrays.<Type>asList(), Collections.<TypeReference<?>>emptyList());
+            function = new Function("pay", Arrays.asList(), Collections.emptyList());
             ether = Convert.toWei(String.valueOf(getPriceFinneyToEther()), Convert.Unit.ETHER).toBigInteger().add(Transaction.DEFAULT_GAS.multiply(gaslimit));
             BigDecimal accountBalance = Convert.fromWei(parity.ethGetBalance(currentwalletID,DefaultBlockParameterName.LATEST).send().getBalance().toString() , Convert.Unit.ETHER);
             //check if there is enough money in the wallet. Transaction would automaticly be discarded from the chain, but now we don't need to wait till transaction is verified.
@@ -160,25 +153,26 @@ public class Web3jService {
         }else if(func.equalsIgnoreCase("stockup")) {
             if((getStock()+amountStockup)>getMaxStock()){return doReturn(func);}
             //no stock check needed because the blockchain smart contract has a max value + not enogh coins to buy more
-            function = new Function("stockUp", Arrays.<Type>asList(new Int256(am)), Collections.<TypeReference<?>>emptyList());
+            function = new Function("resupply", Arrays.asList(new Int256(am)), Collections.emptyList());
             ether = Convert.toWei("0.0", Convert.Unit.ETHER).toBigInteger();
         }else if (func.equalsIgnoreCase("setmin")){
             if(amountStockup >= getStock()){return doReturn(func);}
-            function = new Function("setMinStock", Arrays.<Type>asList(new Int256(am)), Collections.<TypeReference<?>>emptyList());
+            function = new Function("setMinStock", Arrays.asList(new Int256(am)), Collections.emptyList());
             ether = Convert.toWei("0.0", Convert.Unit.ETHER).toBigInteger();
         }else if (func.equalsIgnoreCase("setmax")){
             if(amountStockup<getStock()){return doReturn(func);}
-            function = new Function("setMaxStock", Arrays.<Type>asList(new Int256(am)), Collections.<TypeReference<?>>emptyList());
+            function = new Function("setMaxStock", Arrays.asList(new Int256(am)), Collections.emptyList());
             ether = Convert.toWei("0.0", Convert.Unit.ETHER).toBigInteger();
         }
         //unlock accounts
         PersonalUnlockAccount currentacc = parity.personalUnlockAccount(currentwalletID,passwordWallet, duration).send();
         if(currentacc==null){
             throw new Exception("CurrentAccount is null!");
-
         }
-        if (currentacc.accountUnlocked()) {
 
+        if (currentacc.accountUnlocked()) {
+            //todo: check if balance 0, otherwise error
+            if (web3.ethGetBalance(currentwalletID,DefaultBlockParameterName.LATEST).send().getBalance().doubleValue()<=0){return doReturn(func);}
             EthGetTransactionCount ethGetTransactionCount = web3.ethGetTransactionCount(currentwalletID, DefaultBlockParameterName.LATEST).sendAsync().get();
             BigInteger nonce = ethGetTransactionCount.getTransactionCount();
             String encodedFunction = FunctionEncoder.encode(function);
@@ -186,7 +180,7 @@ public class Web3jService {
             org.web3j.protocol.core.methods.response.EthSendTransaction transactionResponse =parity.personalSignAndSendTransaction(transaction,passwordWallet).send();
             final String transactionHash = transactionResponse.getTransactionHash();
             if (transactionHash == null) {
-                throw new Exception("transactionResponse.getError().getMessage()");
+                throw new Exception(transactionResponse.getError().getMessage());
             }
             EthGetTransactionReceipt transactionReceipt = null;
             //todo: indien niet toegevoegd door error moet deze niet wachten op de transactionreceipt. Dus een timeout hierop plaatsen?
@@ -247,7 +241,7 @@ public class Web3jService {
     public boolean addNewUser(String walletID) throws ExecutionException, InterruptedException {
         Address newAddress = new Address(walletID);
         //will wait till block is mined
-        TransactionReceipt transactionReceipt= vendingContract.add(newAddress).get();
+        TransactionReceipt transactionReceipt= vendingContract.addUser(newAddress).get();
         return true;
     }
 

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface IMongoModelEnabledRepository extends MongoRepository<AccountCredentials,String> {
 
-    public AccountCredentials findByUsername(String s);
-    public AccountCredentials findAccountCredentialsByWalletID(String walletID);
+    AccountCredentials findByUsername(String s);
+    AccountCredentials findAccountCredentialsByWalletID(String walletID);
+
 }

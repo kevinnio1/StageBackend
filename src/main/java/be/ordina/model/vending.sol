@@ -4,6 +4,7 @@ contract Supplier {
 
     address owner;
     uint public priceInFinney;
+    int public stock;
 
     modifier onlyOwner(){
         if(owner == msg.sender){
@@ -11,19 +12,23 @@ contract Supplier {
         }
     }
 
+    event error(string message);
+    event success(string message);
+    event success(string message,uint value);
 
     /* this function is executed at initialization and sets the owner of the contract */
-    function Supplier() {
+    function Supplier(uint price,int defaultStock) {
         owner = msg.sender;
-        priceInFinney = 10;
+        priceInFinney = price;
+        stock = defaultStock;
     }
 
     function withdrawAll() onlyOwner(){
-        if(!owner.send(this.balance)) throw;
+        if(!owner.send(this.balance)){error("send back money Failed"); throw;}
     }
 
     function withdraw(int amountInFinney) onlyOwner(){
-        if(!owner.send(uint256(amountInFinney * 1 finney))) throw;
+        if(!owner.send(uint256(amountInFinney * 1 finney))){error("send back money Failed"); throw;}
     }
 
     /* Function to recover the funds on the contract */
@@ -31,19 +36,32 @@ contract Supplier {
         selfdestruct(owner);
     }
 
+    function buyStock(int amount) payable returns (bool){
 
+        if(stock - amount >= 0 && ((uint(amount) * priceInFinney)*1 finney) - 1 finney <= msg.value ){
+            stock -= amount;
+            return true;
+        }else{
+            if(!msg.sender.send(msg.value)){
+                error("send back money Failed");
+                throw;
+            }
+            error("stock is insufficient and/or not enough ether has been send");
+            return false;
+        }
+    }
 
     function setPrice(uint newPriceInFinney){
         priceInFinney = newPriceInFinney;
+        success("Price has been set",newPriceInFinney);
     }
 
 
     function () payable {
-
+        error("Something went wrong");
+        throw;
     }
 }
-
-
 
 contract VendingMachine {
 
@@ -61,18 +79,19 @@ contract VendingMachine {
     address[] internal stakeholders;
     Supplier s ;
 
-
+    event error(string message);
+    event success(string message);
+    event success(string message, uint value);
 
     modifier restrictAccessTo(address[] _collection){
+        if(msg.sender == address(this)){_;return;}
+
         for(uint i = 0; i < _collection.length; i++) {
             if (_collection[i] == msg.sender) {
                 _;
                 return;
             }
         }
-
-        if(msg.sender == address(this)) {_;return;}
-
 
         if(msg.value > 0){
             if(!msg.sender.send(msg.value)) throw;
@@ -84,19 +103,25 @@ contract VendingMachine {
         if(owner == msg.sender){
             _;
         }
-        if(!msg.sender.send(msg.value)) throw;
+
+    }
+
+    modifier costs(uint _amount) {
+        require(msg.value >= _amount * 1 finney);
+        _;
+        if (msg.value > _amount)
+        if(!msg.sender.send(msg.value - _amount * 1 finney))throw;
     }
 
 
-
     /* this function is executed at initialization and sets the owner of the contract */
-    function VendingMachine() {
+    function VendingMachine(int max, int min, uint price) {
         owner = msg.sender;
-        maxStock = 50;
-        minStock = 10;
+        maxStock = max;
+        minStock = min;
         stock = maxStock;
-        finneyPrice = 20 finney / 1 finney;
-        add(msg.sender);
+        finneyPrice = price;
+        addUser(msg.sender);
         adminUsers++;
         admins.push(msg.sender);
     }
@@ -106,39 +131,29 @@ contract VendingMachine {
         selfdestruct(owner);
     }
 
-    function pay() payable restrictAccessTo(accounts) returns (bool) {
-
-        address client = msg.sender;
+    function pay() payable restrictAccessTo(accounts) costs(finneyPrice ){
         if(stock>0){
 
-            if(msg.value >( finneyPrice * 1 finney)){
-
-                uint256 change = msg.value - (finneyPrice * 1 finney);
-
-                if(!client.send(change)) throw;
-
-            }else if (msg.value < (finneyPrice * 1 finney)){
-                if(client.send(msg.value)) throw;
-                throw;
+            if(stakeholders.length > 0){
+                divideProfit();
+            }else{
+                error("No stakeholders available");
             }
-
-            if(stock != maxStock)
-            divideProfit();
 
             stock--;
 
-            if(stock == minStock) this.stockUp(maxStock-stock);
-
-            return true;
-
+            if(stock == minStock){ this.resupply(maxStock-stock);}
         }else{
+            error("Not enough stock to buy a product. Please wait for a resupply.");
             throw;
         }
+
 
     }
 
     function addStakeholder(address stakeholder) onlyOwner(){
         stakeholders.push(stakeholder);
+        success("Stakeholder has been added");
     }
 
     function divideProfit() internal{
@@ -148,36 +163,44 @@ contract VendingMachine {
         for(uint x = 0; x < stakeholders.length; x++) {
             if(!stakeholders[x].send(share)) throw;
         }
+
+        success("Share has been divided",share);
     }
 
-    function stockUp(int amount) restrictAccessTo(admins) payable returns (int) {
+    function resupply(int amount) restrictAccessTo(admins) payable returns (int) {
         if(amount<=0 && stock + amount > maxStock) throw;
-        if(!supplier.send(uint256(amount) * (s.priceInFinney() * 1 finney))) throw;
+        //msg.value minus the supplier price has been added here because the value from the current call isn't added yet to to contract balance if it is an automatic refill.
+        uint weiToSend = (uint256(amount) * (s.priceInFinney() * 1 finney)) + msg.value-s.priceInFinney();
+        if(!s.buyStock.value(weiToSend)(amount)) return stock;
         stock += amount;
-
+        success("Stock has been resupplied",uint(amount));
         return stock;
     }
 
     function setSupplier(address a) onlyOwner() {
         supplier = a;
         s = Supplier(supplier);
+        success("supplier has been set");
     }
 
     function setPrice(uint newPrice) onlyOwner() {
         finneyPrice = newPrice;
+        success("Price has been set",newPrice);
     }
 
     function setMaxStock(int newStock) restrictAccessTo(admins) {
         if(stock>newStock || minStock>newStock) throw;
         maxStock= newStock;
+        success("New max stock",uint(newStock));
     }
 
     function setMinStock(int newStock) restrictAccessTo(admins) {
         if(maxStock<newStock || stock< newStock) throw;
-        minStock= newStock;
+        minStock = newStock;
+        success("New max stock",uint(minStock));
     }
 
-    function add(address user){
+    function addUser(address user){
         for(uint x = 0; x < accounts.length; x++) {
             if (accounts[x] == user) {
                 throw;
@@ -185,15 +208,17 @@ contract VendingMachine {
         }
         accounts.push(user);
         users++;
+        success("User has been added");
     }
 
-    function remove(address user) restrictAccessTo(admins){
+    function removeUser(address user) restrictAccessTo(admins){
         for(uint x = 0; x < accounts.length; x++) {
             if (accounts[x] == user) {
                 //To fill the gap in the array
                 accounts[x] == accounts[accounts.length-1];
                 delete accounts[accounts.length-1];
                 users--;
+                success("Account has been removed from users");
                 break;
             }
         }
@@ -206,36 +231,20 @@ contract VendingMachine {
                 admins[x] == admins[admins.length-1];
                 delete admins[admins.length-1];
                 adminUsers--;
+                success("Account has been removed from admins");
                 break;
             }
         }
     }
 
     function deleteAccount() restrictAccessTo(accounts){
-        for(uint x = 0; x < accounts.length; x++) {
-            if (accounts[x] == msg.sender) {
-                //To fill the gap in the array
-                accounts[x] == accounts[accounts.length-1];
-                delete accounts[accounts.length-1];
-                users--;
-                break;
-            }
-        }
-
-        for(uint y = 0; y < admins.length; y++) {
-            if (admins[y] == msg.sender) {
-                //To fill the gap in the array
-                admins[y] == admins[admins.length-1];
-                delete admins[admins.length-1];
-                adminUsers--;
-                break;
-            }
-        }
+        removeUser(msg.sender);
+        removeAdmin(msg.sender);
     }
 
     function addAdmin(address admin) restrictAccessTo(admins){
         //add admin to the accounts list
-        add(admin);
+        addUser(admin);
         for(uint x = 0; x < admins.length; x++) {
             if (admins[x] == admin) {
                 throw;
@@ -243,10 +252,13 @@ contract VendingMachine {
         }
         admins.push(admin);
         adminUsers++;
+
+        success("Admin has been added");
     }
 
 
     function () {
+        error("Something went wrong");
         throw; // throw reverts state to before call
     }
 }

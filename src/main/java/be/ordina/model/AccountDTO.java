@@ -1,7 +1,6 @@
 package be.ordina.model;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
 /**
  * Created by KeLe on 6/06/2017.

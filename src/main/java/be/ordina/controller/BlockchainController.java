@@ -2,17 +2,11 @@ package be.ordina.controller;
 
 import be.ordina.model.AccountDTO;
 import be.ordina.service.Web3jService;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.web3j.crypto.CipherException;
-
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Created by KeLe on 27/04/2017.
